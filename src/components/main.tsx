@@ -2,6 +2,7 @@ import * as React from "react";
 
 import { Map, List, fromJS } from "immutable";
 import axios from "axios";
+import { FormattedRelative } from "react-intl";
 
 const semver = require('semver')
 
@@ -41,6 +42,7 @@ export default class Main extends React.Component<IAppProps, IAppState> {
       packages: fromJS(obj.dependencies).map((val, key) => Map({
         name: key,
         currentVersion: val,
+        isLoaded: false,
       }))
     });
 
@@ -50,19 +52,28 @@ export default class Main extends React.Component<IAppProps, IAppState> {
   }
 
   loadLatestVersions = () => {
-    const apiUrl = "https://vv7manmgt0.execute-api.us-east-1.amazonaws.com/prod/testMethod";
+    const registryUrl = "https://afternoon-falls-52669.herokuapp.com/";
 
-    const body = this.state.packages.toJS();
-    
-    axios.post(apiUrl, body).then((data) => {
-      let latestVersions = fromJS(data.data);
-      let newPackages = this.state.packages.map((p, key) => p.set("latestVersion", latestVersions.get(key))).toList();
+    this.state.packages.forEach(current => {
+      axios.get(registryUrl + current.get("name")).then(data => {
+        const packageData = fromJS(data.data);
+        const latestVersion = packageData.get("versions").keySeq().sort(semver.gt).last();
+        const projectHome = packageData.get("homepage");
+        const latestVersionDate = packageData.getIn(["time", latestVersion]);
 
-      this.setState({
-        packages: newPackages
+        let newPackages = this.state.packages.update(current.get("name"), p => p.merge({
+          latestVersion,
+          latestVersionDate,
+          projectHome,
+          isLoaded: true
+        }));
+
+        this.setState({
+          packages: newPackages
+        });
+      }).catch(() => {
+        console.log("failed : " + current.get("name"));
       });
-    }).catch(() => {
-      console.log("failed");
     });
   }
 
@@ -70,9 +81,11 @@ export default class Main extends React.Component<IAppProps, IAppState> {
     const { } = this.props;
 
     let packages = this.state.packages.map(current => {
-      let latest = <i className="fa fa-spinner fa-spin fa-fw"></i>;
+      const isLoaded = current.get("isLoaded");
 
-      if (current.get("latestVersion")) {
+      let latest = <i className="fa fa-spinner fa-spin fa-fw"></i>;
+      
+      if (isLoaded) {
         const currentVersion = current.get("currentVersion").replace("^", "");
 
         //console.log(current.get("name") + " : " + current.get("currentVersion") + " | " + current.get("latestVersion"));
@@ -86,22 +99,28 @@ export default class Main extends React.Component<IAppProps, IAppState> {
         <td>{current.get("name")}</td>
         <td>{current.get("currentVersion")}</td>
         <td>{latest}</td>
+        <td>{isLoaded && <FormattedRelative value={current.get("latestVersionDate")} />}</td>
+        <td>
+          {current.get("projectHome") && <a href={current.get("projectHome")} target="_blank"><i className="fa fa-home fa-lg" aria-hidden="true"></i></a>}
+        </td>
       </tr>;
     }).toList();
 
     return (
       <div>
         <p>Please select your "package.json" file : </p>
-        <br/>
+        <br />
         <input type="file" onChange={this.onFileChange} />
         <br />
         {!packages.isEmpty() && (
           <table className="table" style={{ width: "500px" }}>
             <thead>
               <tr>
-                <td>Package</td>
-                <td>Current</td>
-                <td>Latest</td>
+                <th>Package</th>
+                <th>Current</th>
+                <th>Latest</th>
+                <th>&nbsp;</th>
+                <th>Infos</th>
               </tr>
             </thead>
             <tbody>
