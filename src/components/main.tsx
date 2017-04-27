@@ -57,14 +57,16 @@ export default class Main extends React.Component<IAppProps, IAppState> {
     this.state.packages.forEach(current => {
       axios.get(registryUrl + current.get("name")).then(data => {
         const packageData = fromJS(data.data);
-        const latestVersion = packageData.get("versions").keySeq().sort(semver.gt).last();
+        const latestVersion = packageData.getIn(["dist-tags", "latest"]);
         const projectHome = packageData.get("homepage");
+        const bugUrl = packageData.getIn(["bugs", "url"]);
         const latestVersionDate = packageData.getIn(["time", latestVersion]);
 
         let newPackages = this.state.packages.update(current.get("name"), p => p.merge({
           latestVersion,
           latestVersionDate,
           projectHome,
+          bugUrl,
           isLoaded: true
         }));
 
@@ -87,8 +89,7 @@ export default class Main extends React.Component<IAppProps, IAppState> {
       
       if (isLoaded) {
         const currentVersion = current.get("currentVersion").replace("^", "");
-
-        //console.log(current.get("name") + " : " + current.get("currentVersion") + " | " + current.get("latestVersion"));
+        
         const color = semver.gt(current.get("latestVersion"), currentVersion) ? "red" : "black";
         latest = <span style={{
           color: color
@@ -100,8 +101,9 @@ export default class Main extends React.Component<IAppProps, IAppState> {
         <td>{current.get("currentVersion")}</td>
         <td>{latest}</td>
         <td>{isLoaded && <FormattedRelative value={current.get("latestVersionDate")} />}</td>
-        <td>
+        <td className="infoCell">
           {current.get("projectHome") && <a href={current.get("projectHome")} target="_blank"><i className="fa fa-home fa-lg" aria-hidden="true"></i></a>}
+          {current.get("bugUrl") && <a href={current.get("bugUrl")} target="_blank"><i className="fa fa-bug fa-lg" aria-hidden="true"></i></a>}
         </td>
       </tr>;
     }).toList();
@@ -113,7 +115,7 @@ export default class Main extends React.Component<IAppProps, IAppState> {
         <input type="file" onChange={this.onFileChange} />
         <br />
         {!packages.isEmpty() && (
-          <table className="table" style={{ width: "500px" }}>
+          <table className="table packagesTable">
             <thead>
               <tr>
                 <th>Package</th>

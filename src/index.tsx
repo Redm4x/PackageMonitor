@@ -4,6 +4,7 @@ import { IntlProvider, addLocaleData } from "react-intl";
 
 import "bootstrap/dist/css/bootstrap.css";
 import "font-awesome/css/font-awesome.css";
+import "./sass/main.scss";
 
 import Main from "./components/main";
 
