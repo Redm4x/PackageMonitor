@@ -52,3 +52,56 @@ export function loadLatestVersions() {
     return Promise.all(promises);
   }
 }
+
+export function onFilterChange(value: string, field: string) {
+  return (dispatch: Dispatch<any>, getState) => {
+    const {appState} = getState();
+    const packages: List<Map<string,any>> = appState.get("packages");
+
+    const newCols = appState.get("colsList").update(
+      appState.get("colsList").findIndex(c => c.get("field") === field),
+      col => col.set("filterValue", value)
+    );
+
+    dispatch({
+      type: types.UPDATE_COLSLIST,
+      newCols
+    });
+  }
+}
+
+export function onSortingChange(field: string) {
+  return (dispatch: Dispatch<any>, getState) => {
+    const {appState} = getState();
+
+    let newCols = appState.get("colsList").map(col => {
+      if (col.get("field") !== field && col.get("isSortable")) {
+        return col.set("isSorting", false).set("isAscending", null);
+      } else {
+        return col;
+      }
+    });
+
+    newCols = newCols.update(
+      appState.get("colsList").findIndex(c => c.get("field") === field),
+      (col) => {
+        if (col.get("isSortable")) {
+          if (!col.get("isSorting")) {
+            return col.set("isSorting", true).set("isAscending", true);
+          } else if (col.get("isAscending")) {
+            return col.set("isAscending", false);
+          } else {
+            return col.set("isSorting", false).set("isAscending", null);
+          }
+        } else {
+          return col
+        }
+      }
+    );
+
+    dispatch({
+      type: types.UPDATE_COLSLIST,
+      newCols
+    });
+  }
+}
