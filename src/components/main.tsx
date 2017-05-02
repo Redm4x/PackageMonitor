@@ -38,12 +38,22 @@ export default class Main extends React.Component<IAppProps, IAppState> {
     //console.log(event.target.result);
     var obj = JSON.parse(event.target.result);
 
+    const prodDependencies = fromJS(obj.dependencies).map((val, key) => Map({
+      name: key,
+      currentVersion: val,
+      isLoaded: false,
+      isDev: false,
+    }));
+
+    const devDependencies = fromJS(obj.devDependencies).map((val, key) => Map({
+      name: key,
+      currentVersion: val,
+      isLoaded: false,
+      isDev: true,
+    }));
+
     this.setState({
-      packages: fromJS(obj.dependencies).map((val, key) => Map({
-        name: key,
-        currentVersion: val,
-        isLoaded: false,
-      }))
+      packages: prodDependencies.concat(devDependencies)
     });
 
     setTimeout(() => {
@@ -55,7 +65,9 @@ export default class Main extends React.Component<IAppProps, IAppState> {
     const registryUrl = "https://afternoon-falls-52669.herokuapp.com/";
 
     this.state.packages.forEach(current => {
-      axios.get(registryUrl + current.get("name")).then(data => {
+      const url = registryUrl + current.get("name").replace("/", "%2f");
+
+      axios.get(url).then(data => {
         const packageData = fromJS(data.data);
         const latestVersion = packageData.getIn(["dist-tags", "latest"]);
         const projectHome = packageData.get("homepage");
@@ -98,6 +110,7 @@ export default class Main extends React.Component<IAppProps, IAppState> {
 
       return <tr key={current.get("name")}>
         <td>{current.get("name")}</td>
+        <td>{current.get("isDev") && <span className="label label-default">dev</span>}</td>
         <td>{current.get("currentVersion")}</td>
         <td>{latest}</td>
         <td>{isLoaded && <FormattedRelative value={current.get("latestVersionDate")} />}</td>
@@ -119,6 +132,7 @@ export default class Main extends React.Component<IAppProps, IAppState> {
             <thead>
               <tr>
                 <th>Package</th>
+                <th>&nbsp;</th>
                 <th>Current</th>
                 <th>Latest</th>
                 <th>&nbsp;</th>
