@@ -27,7 +27,9 @@ export function loadLatestVersions() {
     const promises: Array<any> = [];
 
     packages.forEach(current => {
-      promises.push(axios.get(registryUrl + current.get("name")).then(data => {
+      const url = registryUrl + current.get("name").replace("/", "%2f");
+
+      promises.push(axios.get(url).then(data => {
 
         const packageData = fromJS(data.data);
         const latestVersion = packageData.getIn(["dist-tags", "latest"]);

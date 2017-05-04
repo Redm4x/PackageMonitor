@@ -5,6 +5,7 @@ export const initialState: Map<string, any> = Map({
   packages: List(),
   colsList: fromJS([
     { field: "package", title: "Package", show: true, isFilterable: true, filterValue: "", isSortable: true, isSorting: false, isAscending: null, width: "35%" },
+    { field: "dev", title: "", show: true, width: "15%" },
     { field: "current", title: "Current", show: true, isFilterable: true, filterValue: "", isSortable: true, isSorting: false, isAscending: null, width: "15%" },
     { field: "latest", title: "Latest", show: true, isFilterable: true, filterValue: "", isSortable: true, isSorting: false, isAscending: null, width: "15%" },
     { field: "elapsed", title: "Elapsed", show: true, width: "20%" }

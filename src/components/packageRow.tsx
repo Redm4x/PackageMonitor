@@ -30,6 +30,7 @@ export class PackageRow extends React.Component<IAppProps, void> {
     return (
       <tr>
         <td>{currentPackage.get("name")}</td>
+        <td>{currentPackage.get("isDev") && <span className="label label-default">dev</span>}</td>
         <td>{currentPackage.get("currentVersion")}</td>
         <td>{latest}</td>
         <td>{isLoaded && <FormattedRelative value={currentPackage.get("latestVersionDate")} />}</td>

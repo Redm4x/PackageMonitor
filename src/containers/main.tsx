@@ -31,13 +31,23 @@ class Main extends React.Component<IAppProps, void> {
   onReaderLoad = (event) => {
     //console.log(event.target.result);
     const obj = JSON.parse(event.target.result);
-    const packages = fromJS(obj.dependencies).map((val, key) => Map({
+    const prodDependencies = fromJS(obj.dependencies).map((val, key) => Map({
       name: key,
       currentVersion: val,
       isLoaded: false,
+      isDev: false,
     }))
       .toList()
       .sortBy(p => p.get("name"));
+
+    const devDependencies = fromJS(obj.devDependencies).map((val, key) => Map({
+      name: key,
+      currentVersion: val,
+      isLoaded: false,
+      isDev: true,
+    }));
+
+    const packages = prodDependencies.concat(devDependencies);
 
     this.props.updatePackages(packages);
 
