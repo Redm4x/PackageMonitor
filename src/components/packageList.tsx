@@ -17,8 +17,6 @@ export class PackageList extends React.Component<IAppProps, void> {
     super(props);
   }
 
-
-
   render() {
     const {packages, colsList, onFilterChange, onSortingChange} = this.props;
 
@@ -27,7 +25,7 @@ export class PackageList extends React.Component<IAppProps, void> {
     }).toList();
 
     return (
-      <table className="table packagesTable">
+      <table className="table packagesTable table-custom">
         <TableHeader colsList={colsList}
           onFilterChange={onFilterChange}
           onSortingChange={onSortingChange}

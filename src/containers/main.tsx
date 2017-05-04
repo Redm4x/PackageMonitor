@@ -1,10 +1,12 @@
 import * as React from "react";
+import { getPackageList } from "../selectors/packages";
 import { connect } from "react-redux";
 import { Map, List, fromJS } from "immutable";
 import { updatePackages, loadLatestVersions, onSortingChange, onFilterChange } from "../actions";
 import { PackageList } from "../components/packageList";
 
 interface IAppProps {
+  hasAFile: boolean;
   colsList: List<Map<string, any>>;
   packages: List<Map<string, any>>;
 
@@ -23,6 +25,8 @@ class Main extends React.Component<IAppProps, void> {
   onFileChange = (event) => {
     this.props.updatePackages(List([]));
 
+    if (event.target.files && !event.target.files.length) return;
+    
     const reader = new FileReader();
     reader.onload = this.onReaderLoad;
     reader.readAsText(event.target.files[0]);
@@ -57,7 +61,7 @@ class Main extends React.Component<IAppProps, void> {
   }
 
   render() {
-    const {packages, colsList, onSortingChange, onFilterChange} = this.props;
+    const {packages, colsList, onSortingChange, onFilterChange, hasAFile} = this.props;
 
     return (
       <div>
@@ -66,12 +70,13 @@ class Main extends React.Component<IAppProps, void> {
         <input type="file" onChange={this.onFileChange} />
         <br />
 
-        {!packages.isEmpty() && (
+        {hasAFile && (
           <PackageList packages={packages}
             colsList={colsList}
             onSortingChange={onSortingChange}
             onFilterChange={onFilterChange} />
         )}
+
       </div>
     );
   }
@@ -81,8 +86,9 @@ const mapStateToProps = (state) => {
   const {appState} = state;
 
   return {
-    packages: appState.get("packages"),
-    colsList: appState.get("colsList")
+    packages: getPackageList(state),
+    colsList: appState.get("colsList"),
+    hasAFile: appState.get("packages").size > 0
   }
 }
 

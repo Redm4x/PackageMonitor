@@ -1,10 +1,195 @@
-.packagesTable {
-    width: 100%;
-    max-width: 750px;
+@mixin hover-icon {
+  display: inline-block;
+  cursor: pointer;
+  opacity: 1.0;
+  filter: alpha(opacity=100); /*position where      
+  enlarged image should offset horizontally */
+  -webkit-transition: all 0.3s ease-in-out;
+  -moz-transition: all 0.3s ease-in-out;
+  -o-transition: all 0.3s ease-in-out;
+  transition: all 0.3s ease-in-out;
+}
 
-    & .infoCell {
-        & a {
-            margin-right: 10px;
-        }
+
+.packagesTable {
+  width: 100%;
+  max-width: 750px;
+
+  & .infoCell {
+    & a {
+      margin-right: 10px;
     }
+  }
+}
+
+
+.table-custom {
+  th {
+
+    &.sortable {
+      padding-bottom: 6px;
+      /*@include transition(background-color .4s, color .4s);*/
+      cursor: pointer;
+
+      & .sort-indicator {
+        position: relative;
+
+        &:after,
+        &:before {
+          content: "";
+          border-width: 0 4px 4px;
+          border-style: solid;
+          border-color: #000 transparent;
+          visibility: visible;
+          right: -12px;
+          top: 50%;
+          position: absolute;
+          opacity: .4;
+          margin-top: -4px;
+        }
+
+        &:before {
+          margin-top: 2px;
+          border-bottom: 0;
+          border-left: 4px solid transparent;
+          border-right: 4px solid transparent;
+          border-top: 4px solid #000;
+        }
+
+        &:hover {
+          &:after,
+          &:before {
+            opacity: .9;
+            visibility: visible;
+          }
+        }
+      }
+
+      &:hover {
+        background-color: #fafafa;
+        color: lightblue;
+        border-color: lightblue;
+      }
+
+      &.sort-desc,
+      &.sort-asc {
+        text-shadow: none;
+        background-color: transparent;
+        color: lightblue;
+        border-bottom: 3px solid lightblue;
+        padding-bottom: 4px;
+
+        & .sort-indicator {
+          &:after,
+          &:before {
+            margin-top: -2px;
+          }
+
+          &:before {
+            visibility: hidden;
+          }
+        }
+
+        div {
+          &:after,
+          &:before {
+            border-color: lightgray transparent;
+            opacity: 1;
+          }
+
+          &:before {
+            border-top-color: lightgray;
+          }
+        }
+      }
+
+      &.sort-desc {
+        & .sort-indicator {
+          &:after {
+            border-bottom: 0;
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-top: 4px solid #000;
+            visibility: visible;
+            box-shadow: none;
+            opacity: .6;
+          }
+        }
+      }
+
+      &.sort-asc {
+        & .sort-indicator {
+          &:after {
+            visibility: visible;
+            opacity: .6;
+          }
+        }
+      }
+
+      div {
+        &:after,
+        &:before {
+          border-color: black transparent;
+        }
+      }
+    }
+  }
+
+  .tds-table-filters {
+    th {
+      font-weight: 14px;
+      border-top: 0;
+    }
+  }
+}
+
+
+.clear-search {
+  position: absolute;
+  top: 50%;
+  right: 10%;
+  transform: translateY(-50%);
+  opacity: 0;
+  filter: alpha(opacity=0);
+
+  &:hover {
+    @include hover-icon;
+    color: lightblue;
+  }
+}
+
+.clear-search-date-picker {
+  position: relative;
+  top: 50%;
+  right: 5%;
+  opacity: 0;
+  filter: alpha(opacity=0);
+  width: 0px;
+
+  &.underline-input-clear {
+    right: 2%;
+  }
+
+  &:hover {
+    @include hover-icon;
+    color: lightblue;
+  }
+}
+
+.input-filter {
+  &:hover {
+    & + .clear-search {
+      @include hover-icon;
+    }
+  }
+}
+
+.date-range-filter {
+  margin-right: 10px;
+
+  &:hover {
+    & .clear-search-date-picker {
+      @include hover-icon;
+    }
+  }
 }
